@@ -1,9 +1,9 @@
-package ru.skypro.lessons.springboot.springhw2.repository;
+package ru.skypro.lessons.springboot.springhw2.service;
 
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
+import ru.skypro.lessons.springboot.springhw2.repository.EmployeeRepository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class EmployeeRepositoryImpl implements EmployeeRepository{
+public class EmployeeRepositoryImpl implements EmployeeRepository {
 
     private final static List<Employee> EMPLOYEE_LIST = List.of(
             new Employee("Сергей", 100_000),
