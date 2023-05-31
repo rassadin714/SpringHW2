@@ -1,10 +1,10 @@
-package ru.skypro.lessons.springboot.springhw2.repository;
+package ru.skypro.lessons.springboot.springhw2.service;
 
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 
 import java.util.List;
 
-public interface EmployeeRepository {
+public interface EmployeeService {
     int getSumSalary();
     Employee getEmployeeMinSalary();
     Employee getEmployeeMaxSalary();
