@@ -12,30 +12,32 @@ import java.util.List;
 
 @RestController
 @RequestMapping("employees")
-@RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
 
-    @GetMapping("salary/sum")
-    public int getSumSalary(){
-        return employeeService.getSumSalary();
-    }
-
-    @GetMapping("salary/min")
-    public Employee getEmployeeMinSalary(){
-        return employeeService.getEmployeeMinSalary();
-    }
-
-    @GetMapping("salary/max")
-    public Employee getEmployeeMaxSalary(){
-        return  employeeService.getEmployeeMaxSalary();
-    }
-
-    @GetMapping("high-salary")
-    public List<Employee> getEmployeesHighSalary(){
-        return employeeService.getEmployeesHighSalary();
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
 
+    @GetMapping("/salary/max")
+    public Employee findEmployeeWithMaxSalary() {
+        return employeeService.findEmployeeWithMaxSalary();
+    }
+
+    @GetMapping("/salary/min")
+    public Employee findEmployeeWithMinSalary() {
+        return employeeService.findEmployeeWithMinSalary();
+    }
+
+    @GetMapping("/salary/sum")
+    public Integer salarySum() {
+        return employeeService.salarySum();
+    }
+
+    @GetMapping("/high-salary")
+    public List<Employee> highSalary() {
+        return employeeService.aboveAverageSalary();
+    }
 
 }

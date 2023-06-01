@@ -1,35 +1,59 @@
 package ru.skypro.lessons.springboot.springhw2.service;
 
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import ru.skypro.lessons.springboot.springhw2.repository.EmployeeRepository;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
-@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService{
     private final EmployeeRepository employeeRepository;
 
-    @Override
-    public int getSumSalary() {
-        return employeeRepository.getSumSalary();
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
-    public Employee getEmployeeMinSalary() {
-        return employeeRepository.getEmployeeMinSalary();
+    public Integer salarySum() {
+        int sumSalary = 0;
+        List<Integer> salaryList = employeeRepository.getAllEmployees()
+                .stream()
+                .map(Employee::getSalary)
+                .toList();
+        for (Integer salary : salaryList) {
+            sumSalary = sumSalary + salary;
+        }
+        return sumSalary;
     }
 
     @Override
-    public Employee getEmployeeMaxSalary() {
-        return employeeRepository.getEmployeeMaxSalary();
+    public Employee findEmployeeWithMinSalary() {
+        return employeeRepository.getAllEmployees()
+                .stream()
+                .min(Comparator.comparing(Employee::getSalary))
+                .orElse(null);
     }
 
     @Override
-    public List<Employee> getEmployeesHighSalary() {
-        return employeeRepository.getEmployeesHighSalary();
+    public Employee findEmployeeWithMaxSalary() {
+        return employeeRepository.getAllEmployees()
+                .stream()
+                .max(Comparator.comparing(Employee::getSalary))
+                .orElse(null);
+    }
+
+    @Override
+    public List<Employee> aboveAverageSalary() {
+        int sizeRepository = employeeRepository.getAllEmployees().size();
+        int averageSalary = salarySum() / sizeRepository;
+        return employeeRepository.getAllEmployees()
+                .stream()
+                .filter(employee -> employee.getSalary() > averageSalary)
+                .collect(Collectors.toList());
     }
 }

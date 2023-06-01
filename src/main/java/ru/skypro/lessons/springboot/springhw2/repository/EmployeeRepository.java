@@ -5,8 +5,6 @@ import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import java.util.List;
 
 public interface EmployeeRepository {
-    int getSumSalary();
-    Employee getEmployeeMinSalary();
-    Employee getEmployeeMaxSalary();
-    List<Employee> getEmployeesHighSalary();
+    public List<Employee> getAllEmployees();
+
 }
