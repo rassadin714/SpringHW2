@@ -13,4 +13,10 @@ public interface EmployeeService {
     Employee findEmployeeWithMaxSalary();
 
     List<Employee> aboveAverageSalary();
+
+    void addEmployee(Employee employees);
+    void editEmployee(String name, Integer salary, int id);
+    Employee getEmployeeById(int id);
+    void deleteEmployeeById (int id);
+    List<Employee> employeesSalaryHigherThan(int salary);
 }

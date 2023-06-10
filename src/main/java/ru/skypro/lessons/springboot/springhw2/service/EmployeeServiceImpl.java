@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import ru.skypro.lessons.springboot.springhw2.repository.EmployeeRepository;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,5 +56,34 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .stream()
                 .filter(employee -> employee.getSalary() > averageSalary)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addEmployee(Employee employee) {
+        employeeRepository.addEmployee(employee);
+    }
+
+    @Override
+    public void editEmployee(String name, Integer salary, int id) {
+        employeeRepository.editEmployee(name, salary, id);
+    }
+
+    @Override
+    public Employee getEmployeeById(int id) {
+        return employeeRepository.getEmployeeById(id);
+    }
+
+    @Override
+    public void deleteEmployeeById(int id) {
+        employeeRepository.deleteEmployeeById(id);
+    }
+
+    @Override
+    public List<Employee> employeesSalaryHigherThan(int salary) {
+        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
+        List<Employee> employeesHigherSalaryThan = employeeList.stream()
+                .filter(e-> e.getSalary()>salary)
+                .collect(Collectors.toList());
+        return employeesHigherSalaryThan;
     }
 }
