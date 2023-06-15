@@ -1,7 +1,8 @@
 package ru.skypro.lessons.springboot.springhw2.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.lessons.springboot.springhw2.dto.EmployeeDTO;
+import ru.skypro.lessons.springboot.springhw2.dto.EmployeeFullInfo;
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import ru.skypro.lessons.springboot.springhw2.service.EmployeeService;
 
@@ -17,31 +18,13 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-
-    @GetMapping("/salary/max")
-    public Employee findEmployeeWithMaxSalary() {
-        return employeeService.findEmployeeWithMaxSalary();
+    @GetMapping("/all")
+    public List<EmployeeDTO> getAllEmployees(){
+        return employeeService.getAllEmployees();
     }
 
-    @GetMapping("/salary/min")
-    public Employee findEmployeeWithMinSalary() {
-        return employeeService.findEmployeeWithMinSalary();
-    }
-
-    @GetMapping("/salary/sum")
-    public Integer salarySum() {
-        return employeeService.salarySum();
-    }
-
-    @GetMapping("/high-salary")
-    public List<Employee> highSalary() {
-        return employeeService.aboveAverageSalary();
-    }
-
-
-    @PostMapping("/")
-    public void addEmployee (@RequestBody Employee employee){
-        employeeService.addEmployee(employee);
+    public void addEmployee (@RequestBody EmployeeDTO employeeDTO){
+        employeeService.addEmployee(employeeDTO);
     }
 
     @PutMapping("{id}")
@@ -52,7 +35,7 @@ public class EmployeeController {
     }
 
     @GetMapping("{id}")
-    public Employee getEmployeeById (@PathVariable int id){
+    public EmployeeDTO getEmployeeById (@PathVariable int id){
         return employeeService.getEmployeeById(id);
     }
 
@@ -61,9 +44,25 @@ public class EmployeeController {
         employeeService.deleteEmployeeById(id);
     }
 
-    @GetMapping("salaryHigherThan")
-    public List<Employee> employeesSalaryHigherThan(@RequestParam("salary") int salary){
-        return employeeService.employeesSalaryHigherThan(salary);
+    @GetMapping("/withHighestSalary")
+    public EmployeeDTO getEmployeeWithHighestSalary(){
+        return employeeService.getEmployeeWithHighestSalary();
+    }
+
+
+    @GetMapping("/position")
+    public List<EmployeeDTO> getEmployeesByPosition(@RequestParam(value = "position", required = false) String position) {
+        return employeeService.getEmployeesByPosition(position);
+    }
+
+    @GetMapping("/{id}/fullInfo")
+    public EmployeeFullInfo getEmployeeFullInfoById(@PathVariable int id) {
+        return employeeService.getEmployeeFullInfoById(id);
+    }
+
+    @GetMapping("/page")
+    public List<Employee> getEmployeesWithPaging(@RequestParam("page") int page){
+        return employeeService.getEmployeesWithPaging(page);
     }
 
 }
