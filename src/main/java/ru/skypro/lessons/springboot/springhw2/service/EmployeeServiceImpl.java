@@ -1,10 +1,12 @@
 package ru.skypro.lessons.springboot.springhw2.service;
 
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.lessons.springboot.springhw2.dto.EmployeeDTO;
 import ru.skypro.lessons.springboot.springhw2.dto.EmployeeFullInfo;
 import ru.skypro.lessons.springboot.springhw2.exceptions.EmployeeNotFoundException;
@@ -12,13 +14,14 @@ import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import ru.skypro.lessons.springboot.springhw2.repository.EmployeeRepository;
 
 import java.awt.print.Pageable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService{
     private final EmployeeRepository employeeRepository;
 
@@ -69,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 ////        return employeesHighSalary;
 //    return null;
 //    }
-//
+
     @Override
     public void addEmployee(EmployeeDTO employeeDTO) {
         Employee employee = employeeDTO.toEmployee();
@@ -159,5 +162,18 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .toList();
     }
 
+    @Override
+    public void createEmployeeFromFile(MultipartFile file) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        EmployeeDTO[] newEmployees = objectMapper.readValue(file.getBytes(), EmployeeDTO[].class);
+        for (EmployeeDTO e : newEmployees) {
+            createEmployee(e);
+        }
+    }
+
+    @Override
+    public void createEmployee(EmployeeDTO employeeDTO) {
+        employeeRepository.save(employeeDTO.toEmployee());
+    }
 
 }
