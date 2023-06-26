@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.lessons.springboot.springhw2.dto.EmployeeDTO;
@@ -13,153 +14,73 @@ import ru.skypro.lessons.springboot.springhw2.exceptions.EmployeeNotFoundExcepti
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 import ru.skypro.lessons.springboot.springhw2.repository.EmployeeRepository;
 
-import java.awt.print.Pageable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
-
+import java.util.stream.IntStream;
 @Service
 @AllArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService{
+public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
-
-//    @Override
-//    public int getSumSalary() {
-////        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
-////        int sum = employeeList.stream()
-////                .mapToInt(e -> e.getSalary())
-////                .sum();
-////        return sum;
-//        return 0;
-//    }
-//
-//    @Override
-//    public Employee getEmployeeMinSalary() {
-////        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
-////        Employee employee = employeeList.stream()
-////                .sorted(Comparator.comparing(Employee::getSalary))
-////                .findFirst()
-////                .get();
-////        return employee;
-//        return null;
-//    }
-//
-//    @Override
-//    public Employee getEmployeeMaxSalary() {
-////        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
-////        Employee employee = employeeList.stream()
-////                .sorted(Comparator.comparing(Employee::getSalary).reversed())
-////                .findFirst()
-////                .get();
-////        return employee;
-//    return null;
-//    }
-//
-//    @Override
-//    public List<Employee> getEmployeesHighSalary() {
-////        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
-////
-////        double averageSalary = employeeList.stream()
-////                .mapToInt(Employee::getSalary)
-////                .average().orElse(0);
-////
-////        List<Employee> employeesHighSalary = employeeList.stream()
-////                .filter(e-> e.getSalary()>averageSalary)
-////                .collect(Collectors.toList());
-////
-////        return employeesHighSalary;
-//    return null;
-//    }
-
-    @Override
-    public void addEmployee(EmployeeDTO employeeDTO) {
-        Employee employee = employeeDTO.toEmployee();
-        employeeRepository.save(employee);
+    private final PagingAndSortingRepository pagingAndSortingRepository;
+    public Collection<EmployeeFullInfo> getAllEmployees() {
+        return employeeRepository.findAllEmployeeFullInfo();
     }
-
     @Override
-    public void editEmployee(String name, Integer salary, int id) {
-        EmployeeDTO employeeDTO = EmployeeDTO.fromEmployee(employeeRepository.findById(id)
-                .orElseThrow(EmployeeNotFoundException::new));
-        employeeDTO.setName(name);
-        employeeDTO.setSalary(salary);
-        Employee employee = employeeDTO.toEmployee();
-        employeeRepository.save(employee);
+    public Integer getSalarySum() {
+        return getAllEmployees().stream()
+                .mapToInt(employee -> IntStream.of(employee.getSalary()).sum())
+                .sum();
     }
-
     @Override
-    public EmployeeDTO getEmployeeById(int id) {
-
-        EmployeeDTO employeeDTO = EmployeeDTO.fromEmployee(employeeRepository.findById(id)
-                .orElseThrow(EmployeeNotFoundException::new));
-        return  employeeDTO;
+    public EmployeeFullInfo getSalaryMin() {
+        return getAllEmployees().stream()
+                .min(Comparator.comparingInt(EmployeeFullInfo::getSalary))
+                .orElseThrow(EmployeeNotFoundException::new);
     }
-
     @Override
-    public void deleteEmployeeById(int id) {
-
-        EmployeeDTO employeeDTO = EmployeeDTO.fromEmployee(employeeRepository.findById(id)
-                .orElseThrow(EmployeeNotFoundException::new));
-        Employee employee = employeeDTO.toEmployee();
-        employeeRepository.deleteById(employee.getId());
+    public EmployeeFullInfo getSalaryMax() {
+        return getAllEmployees().stream()
+                .max(Comparator.comparingInt(EmployeeFullInfo::getSalary))
+                .orElseThrow(EmployeeNotFoundException::new);
     }
-
-//    @Override
-//    public List<Employee> employeesSalaryHigherThan(int salary) {
-////        List<Employee> employeeList = new ArrayList<>(employeeRepository.getAllEmployees());
-////        List<Employee> employeesHigherSalaryThan = employeeList.stream()
-////                .filter(e-> e.getSalary()>salary)
-////                .collect(Collectors.toList());
-////        return employeesHigherSalaryThan;
-//    return null;
-//    }
-
     @Override
-    public List<EmployeeDTO> getAllEmployees(){
-        return employeeRepository.findAllEmployees().stream()
-                .map(EmployeeDTO::fromEmployee)
+    public Collection<EmployeeFullInfo> getSalaryAboveAverageEmployees() {
+        double salaryAverage = getAllEmployees().stream()
+                .mapToInt(EmployeeFullInfo::getSalary).average().getAsDouble();
+        return getAllEmployees().stream()
+                .filter(employee -> employee.getSalary() > salaryAverage)
                 .collect(Collectors.toList());
     }
-
     @Override
-    public EmployeeDTO getEmployeeWithHighestSalary() {
-        Employee employee = employeeRepository.getEmployeeWithHighestSalary();
-        EmployeeDTO employeeDTO = EmployeeDTO.fromEmployee(employee);
-        return employeeDTO;
+    public Collection<EmployeeFullInfo> getEmployeesByParamSalary(int paramSalary) {
+        return getAllEmployees().stream()
+                .filter(employee -> employee.getSalary() > paramSalary)
+                .collect(Collectors.toList());
     }
-
     @Override
-    public List<EmployeeDTO> getEmployeesByPosition(String position) {
-        List<Employee> employees = new ArrayList<>();
-        List<EmployeeDTO> employeesDTO = new ArrayList<>();
-        if(position == null){
-            employees = employeeRepository.findAllEmployees();
-            employeesDTO = employees.stream()
-                    .map(EmployeeDTO::fromEmployee)
-                    .collect(Collectors.toList());
-        }else {
-            employees = employeeRepository.getEmployeesByPosition(position);
-            employeesDTO = employees.stream()
-                    .map(EmployeeDTO::fromEmployee)
-                    .collect(Collectors.toList());
-        }
-        return employeesDTO;
+    public EmployeeFullInfo getEmployeeByIdFullInfo(Integer id) {
+        return employeeRepository.findByIdFullInfo(id).orElseThrow(EmployeeNotFoundException::new);
     }
-
     @Override
-    public EmployeeFullInfo getEmployeeFullInfoById(int id) {
-        return employeeRepository.getEmployeeFullInfoById(id);
+    public Collection<EmployeeFullInfo> getEmployeesByPosition(Integer position) {
+        if (position != null) {
+            return employeeRepository.findEmployeeByPosition(position);
+        } else
+            return getAllEmployees();
     }
-
     @Override
-    public List<Employee> getEmployeesWithPaging(int page) {
-        Pageable employeeOfConcretePage = (Pageable) PageRequest.of(page, 10);
-        Page<Employee> pageOfEmployee = employeeRepository.findAll((org.springframework.data.domain.Pageable) employeeOfConcretePage);
-
-        return pageOfEmployee.stream()
+    public Collection<EmployeeFullInfo> getEmployeesWithHighestSalary() {
+        return employeeRepository.findEmployeeWithHighestSalary();
+    }
+    @Override
+    public Collection<EmployeeDTO> getEmployeeWithPage(Integer page) {
+        Page<Employee> employeePage = pagingAndSortingRepository.findAll(PageRequest.of(page, 10));
+        Collection<Employee> employeeList = employeePage.stream()
                 .toList();
+        return employeeList.stream()
+                .map(EmployeeDTO::fromEmployee)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -175,5 +96,23 @@ public class EmployeeServiceImpl implements EmployeeService{
     public void createEmployee(EmployeeDTO employeeDTO) {
         employeeRepository.save(employeeDTO.toEmployee());
     }
-
+    @Override
+    public void updateEmployeeById(Integer id, EmployeeDTO employeeDTO) {
+        if (employeeRepository.existsById(id)) {
+            employeeRepository.save(employeeDTO.toEmployee());
+        }
+        throw new EmployeeNotFoundException();
+    }
+    @Override
+    public Employee getEmployeeById(Integer id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(EmployeeNotFoundException::new);
+    }
+    @Override
+    public void deleteEmployeeById(Integer id) {
+        if (id > getAllEmployees().size() || id <= 0) {
+            throw new EmployeeNotFoundException();
+        }
+        employeeRepository.deleteById(id);
+    }
 }

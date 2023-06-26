@@ -7,25 +7,24 @@ import ru.skypro.lessons.springboot.springhw2.dto.EmployeeFullInfo;
 import ru.skypro.lessons.springboot.springhw2.model.Employee;
 
 import java.io.IOException;
-import java.util.List;
-
-@Service
+import java.util.Collection;
 
 public interface EmployeeService {
-    void addEmployee(EmployeeDTO employeeDTO);
-    void editEmployee(String name, Integer salary, int id);
-    EmployeeDTO getEmployeeById(int id);
-    void deleteEmployeeById (int id);
-    public EmployeeDTO getEmployeeWithHighestSalary();
-
-    List<EmployeeDTO> getAllEmployees();
-    List<EmployeeDTO> getEmployeesByPosition(String position);
-    EmployeeFullInfo getEmployeeFullInfoById(int id);
-    List<Employee> getEmployeesWithPaging(int page);
-
-    void createEmployeeFromFile(MultipartFile file) throws IOException;
-
-    void createEmployeeFromFile(MultipartFile file) throws IOException;
-
+    Collection<EmployeeFullInfo> getAllEmployees();
     void createEmployee(EmployeeDTO employeeDTO);
+    Employee getEmployeeById(Integer id);
+    void updateEmployeeById(Integer id, EmployeeDTO employeeDTO);
+    void deleteEmployeeById(Integer id);
+    Integer getSalarySum();
+    EmployeeFullInfo getSalaryMin();
+    EmployeeFullInfo getSalaryMax();
+    Collection<EmployeeFullInfo> getSalaryAboveAverageEmployees();
+    Collection<EmployeeFullInfo> getEmployeesByParamSalary(int paramSalary);
+    EmployeeFullInfo getEmployeeByIdFullInfo(Integer id);
+    Collection<EmployeeFullInfo> getEmployeesByPosition(Integer position);
+    Collection<EmployeeFullInfo> getEmployeesWithHighestSalary();
+
+    Collection<EmployeeDTO> getEmployeeWithPage(Integer page);
+
+    void createEmployeeFromFile(MultipartFile file) throws IOException;
 }
